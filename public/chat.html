@@ -62,7 +62,7 @@
         <p id="errorMessage" style="color: #ff5c8a; text-align: center;"></p>
         <div id="typingIndicator"></div>
         <input type="text" id="msgInput" placeholder="Écris un message..." oninput="notifyTyping()" onkeypress="handleKey(event)" onkeypress="handleKey(event)">
-        <button id="sendBtn">Envoyer</button>
+        <button id="sendBtn" type="button">Envoyer</button>
     </div>
     <script src="/socket.io/socket.io.js">
         function handleKey(e) {
