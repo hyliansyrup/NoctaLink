@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagerie Privée</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💬 Rejoindre ou créer un salon</h1>
+        <div class="box">
+            <p>🔑 Rejoindre une session existante</p>
+            <input type="text" id="joinCode" placeholder="Entrer un code">
+            <button onclick="joinRoom()">Rejoindre</button>
+        </div>
+        <div class="box">
+            <p>✨ Créer une nouvelle session</p>
+            <div class="code-generator">
+                <input type="text" id="generatedCode" readonly>
+                <button onclick="generateCode()">🔄</button>
+                <button onclick="copyCode()">📋</button>
+            </div>
+            <button onclick="createRoom()">Créer la session</button>
+        </div>
+        <footer>
+            <p>⚠️ Ce chat est éphémère. Aucune donnée n’est conservée.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
