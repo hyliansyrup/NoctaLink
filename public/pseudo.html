@@ -10,7 +10,7 @@
     <div class="container">
         <h1>🎭 Entre ton pseudo</h1>
         <p class="warning">⚠️ Tu ne peux changer ton pseudo qu'une seule fois.<br>
-        Les messages ne sont pas sauvegardés : tout disparaît quand tu quittes la session.</p>
+        Les messages ne sont pas sauvegardés : tout disparaît quand tu quittes la session.<br>Chaque session peut accueillir jusqu’à <strong>15 personnes en même temps</strong>. Au-delà, l’accès est bloqué.</p>
         <input type="text" id="username" placeholder="Ex: nekochan">
         <button onclick="enterChat()">Rejoindre le salon</button>
     </div>
@@ -27,7 +27,9 @@
                 alert("Entre un pseudo valide.");
                 return;
             }
-            window.location.href = "chat.html?room=" + room + "&user=" + encodeURIComponent(username);
+            localStorage.setItem("chatUser", username);
+            localStorage.setItem("chatUser", username);
+            window.location.href = "chat.html?room=" + room;
         }
     </script>
 </body>

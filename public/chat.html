@@ -58,31 +58,60 @@
     <div class="container">
         <h1>💬 Salon</h1>
         <div id="chat" class="chat-box"></div>
+        <p id="errorMessage" style="color: #ff5c8a; text-align: center;"></p>
         <div id="typingIndicator"></div>
-        <input type="text" id="msgInput" placeholder="Écris un message..." oninput="notifyTyping()">
+        <input type="text" id="msgInput" placeholder="Écris un message..." oninput="notifyTyping()" onkeypress="handleKey(event)" onkeypress="handleKey(event)">
         <button onclick="sendMessage()">Envoyer</button>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js">
+        function handleKey(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
     <script>
         const socket = io();
         const chat = document.getElementById('chat');
         const input = document.getElementById('msgInput');
         const typingIndicator = document.getElementById('typingIndicator');
 
+        
+        const encryptionKey = room.padEnd(16, '0').slice(0, 16); // clé simple basée sur le code
+        function encryptMessage(text) {
+            return CryptoJS.AES.encrypt(text, encryptionKey).toString();
+        }
+        function decryptMessage(ciphertext) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(ciphertext, encryptionKey);
+                return bytes.toString(CryptoJS.enc.Utf8) || "[déchiffrement impossible]";
+            } catch (e) {
+                return "[erreur de chiffrement]";
+            }
+        }
+
         const params = new URLSearchParams(window.location.search);
         const room = params.get('room');
-        const user = params.get('user');
+        const user = localStorage.getItem("chatUser");
 
         socket.emit('joinRoom', { room, user });
 
+        
         socket.on('message', data => {
+            if (data.text && data.text.includes("déjà utilisé")) {
+                document.getElementById('errorMessage').textContent = data.text;
+                return;
+            } else {
+                document.getElementById('errorMessage').textContent = '';
+            }
+    
             const div = document.createElement('div');
             if (data.type === 'system') {
                 div.className = 'message system';
                 div.textContent = data.text;
             } else {
                 div.className = 'message ' + (data.user === user ? 'you' : 'other');
-                div.innerHTML = `<span><strong>${data.user}:</strong> ${data.text}</span>`;
+                div.innerHTML = `<span><strong>${data.user}:</strong> ${decryptMessage(data.text)}</span>`;
             }
             chat.appendChild(div);
             chat.scrollTop = chat.scrollHeight;
@@ -91,7 +120,8 @@
         function sendMessage() {
             const msg = input.value.trim();
             if (!msg) return;
-            socket.emit('chatMessage', { room, user, text: msg });
+            const encrypted = encryptMessage(msg);
+        socket.emit('chatMessage', { room, user, text: encrypted });
             input.value = '';
             socket.emit('stopTyping', room);
         }
@@ -116,6 +146,12 @@
                 socket.emit('stopTyping', room);
             }, 2000);
         });
+    
+        function handleKey(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
     </script>
 </body>
 </html>
