@@ -24,7 +24,13 @@ io.on('connection', socket => {
         socket.join(room);
         socket.room = room;
         socket.user = user;
+        
+        if (rooms[room].users.includes(user)) {
+            socket.emit('message', { type: 'system', text: '❌ Ce pseudo est déjà utilisé dans cette session.' });
+            return;
+        }
         rooms[room].users.push(user);
+    
 
         io.to(room).emit('message', { type: 'system', text: `💬 ${user} a rejoint la session.` });
     });
