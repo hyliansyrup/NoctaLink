@@ -65,14 +65,28 @@
         <button id="sendBtn" type="button">Envoyer</button>
     </div>
     <script src="/socket.io/socket.io.js">
+        }
+    
+        
+        
+        function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            const encrypted = encryptMessage(msg);
+            socket.emit('chatMessage', { room, user, text: encrypted });
+            input.value = '';
+            socket.emit('stopTyping', room);
+        }
+
         function handleKey(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         }
-    
+
         document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        </script>
+        input.addEventListener('keypress', handleKey);
+    </script>
     <script>
         const socket = io();
         const chat = document.getElementById('chat');
@@ -96,6 +110,7 @@
         const params = new URLSearchParams(window.location.search);
         const room = params.get('room');
         const user = localStorage.getItem("chatUser");
+if (!user) window.location.href = "pseudo.html?room=" + room;
 
         if (!localStorage.getItem("chatToken")) {
             localStorage.setItem("chatToken", Math.random().toString(36).substring(2));
@@ -126,11 +141,7 @@
             chat.scrollTop = chat.scrollHeight;
         });
 
-        function sendMessage() {
-            const msg = input.value.trim();
-            if (!msg) return;
-            const encrypted = encryptMessage(msg);
-        socket.emit('chatMessage', { room, user, text: encrypted });
+        );
             input.value = '';
             socket.emit('stopTyping', room);
         }
@@ -156,13 +167,27 @@
             }, 2000);
         });
     
+        }
+    
+        
+        
+        function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            const encrypted = encryptMessage(msg);
+            socket.emit('chatMessage', { room, user, text: encrypted });
+            input.value = '';
+            socket.emit('stopTyping', room);
+        }
+
         function handleKey(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         }
-    
+
         document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        </script>
+        input.addEventListener('keypress', handleKey);
+    </script>
 </body>
 </html>
