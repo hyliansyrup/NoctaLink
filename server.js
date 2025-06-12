@@ -1,0 +1,60 @@
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
+const rooms = {};
+
+io.on('connection', socket => {
+    socket.on('joinRoom', ({ room, user }) => {
+        if (!rooms[room]) {
+            rooms[room] = { users: [], typing: {} };
+        }
+
+        if (rooms[room].users.length >= 15) {
+            socket.emit('message', { type: 'system', text: '❌ Cette session est pleine.' });
+            return;
+        }
+
+        socket.join(room);
+        socket.room = room;
+        socket.user = user;
+        rooms[room].users.push(user);
+
+        io.to(room).emit('message', { type: 'system', text: `💬 ${user} a rejoint la session.` });
+    });
+
+    socket.on('chatMessage', ({ room, user, text }) => {
+        io.to(room).emit('message', { user, text });
+    });
+
+    socket.on('typing', ({ room, user }) => {
+        socket.to(room).emit('userTyping', user);
+    });
+
+    socket.on('stopTyping', room => {
+        socket.to(room).emit('stopTyping');
+    });
+
+    socket.on('disconnect', () => {
+        const room = socket.room;
+        const user = socket.user;
+        if (room && rooms[room]) {
+            rooms[room].users = rooms[room].users.filter(u => u !== user);
+            io.to(room).emit('message', { type: 'system', text: `👋 ${user} a quitté la session.` });
+            if (rooms[room].users.length === 0) {
+                delete rooms[room]; // nettoyage de la room vide
+            }
+        }
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Serveur démarré sur http://localhost:${PORT}`);
+});
